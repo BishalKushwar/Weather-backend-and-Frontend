@@ -1,6 +1,10 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const dotenv = require("dotenv");
+
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 
@@ -12,7 +16,7 @@ app.use(cors({
 // Handle the /weather route to return weather data in JSON format
 app.get("/weather", async (req, res) => {
   const city = req.query.city;
-  const apiKey = "a1cc65283113eac507ec98ce4a62d1a8";
+  const apiKey = process.env.API_KEY;  // Use the API key from .env
 
   const APIUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
 
@@ -26,7 +30,7 @@ app.get("/weather", async (req, res) => {
 });
 
 // Start the server
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`App is running on port ${port}`);
 });
