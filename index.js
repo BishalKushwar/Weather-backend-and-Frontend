@@ -8,15 +8,20 @@ dotenv.config();
 
 const app = express();
 
-// Enable CORS for your React frontend's URL
+// Enable CORS for your React frontend's URLs
 app.use(cors({
-  origin: 'http://localhost:5173'  // Replace this with your frontend URL
+  origin: ['http://localhost:5173', 'https://weather.bishalmajhi1.com.np'],
+  // Multiple origins should be in an array
 }));
 
 // Handle the /weather route to return weather data in JSON format
 app.get("/weather", async (req, res) => {
   const city = req.query.city;
   const apiKey = process.env.API_KEY;  // Use the API key from .env
+
+  if (!city) {
+    return res.status(400).json({ message: "City parameter is required" });
+  }
 
   const APIUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
 
@@ -25,12 +30,16 @@ app.get("/weather", async (req, res) => {
     const weather = response.data;
     res.json(weather);
   } catch (error) {
-    res.status(500).json({ message: "Error, Please try again" });
+    if (error.response && error.response.status === 404) {
+      res.status(404).json({ message: "City not found" });
+    } else {
+      res.status(500).json({ message: "Error, Please try again" });
+    }
   }
 });
 
 // Start the server
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;  // Fallback port if not specified in .env
 app.listen(port, () => {
   console.log(`App is running on port ${port}`);
 });
